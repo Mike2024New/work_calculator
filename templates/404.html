@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block content %}
+
+  <div class="shadow p-3 mb-4 mt-4 bg-white rounded"> 
+    <div class="card-body" id="card-body">
+      <h1 style="color:red;font-size: 100px;">404</h1><br>
+      <h5>Искомая страница не найдена, возможно она в разработке или удалена вообще...</h5><br><br>
+    </div>
+    <a href="{% url "main:index" %}"><button type="button" class="btn btn-dark">Вернуться на главную</button></a>
+  </div>
+{% endblock content %}

@@ -1,0 +1,57 @@
+.shadow {
+    border: 0.01px solid gray;
+  }
+
+  /*ПОЛЯ ВВОДА НА ФОРМАХ*/
+  .form-control {
+    border: 0.01px solid gray;
+  }
+
+  .form-control:focus {
+    border-color: red; /* Цвет рамки при фокусе */
+    box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25); /* Красная тень при фокусе */
+  }
+
+  .form-control:hover {
+    border-color: red; /* Цвет рамки при фокусе */
+    box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25); /* Красная тень при фокусе */
+  }
+
+  /*КРАСНЫЕ КНОПКИ btn btn-danger */
+  .btn-danger {
+    background-color: red; /* Исходный цвет кнопки */
+    color: white; /* Цвет текста */
+    border: 2px solid transparent; /* Исходная обводка */
+    transition: background-color 0.3s, border-color 0.3s; /* Плавный переход */
+  }
+
+  .btn-danger:hover {
+      background-color: transparent; /* Цвет фона при наведении */
+      color: red; /* Цвет текста при наведении */
+      border-color: red; /* Цвет обводки при наведении */
+  }
+
+  /* ЧЁРНЫЕ КНОПКИ btn btn-dark */
+  .btn-dark {
+    background-color: black; /* Исходный цвет кнопки */
+    color: white; /* Цвет текста */
+    border: 2px solid transparent; /* Исходная обводка */
+    transition: background-color 0.3s, border-color 0.3s; /* Плавный переход */
+  }
+
+  .btn-dark:hover {
+      background-color: transparent; /* Цвет фона при наведении */
+      color: black; /* Цвет текста при наведении */
+      border-color: black; /* Цвет обводки при наведении */
+  }
+
+
+  /*КНОПКИ НАВИГАЦИИ ШАПКИ САЙТА*/
+  .nav-link.active {
+    /*background-color: red; /* Красный фон для активной ссылки */
+    color: red; /* Цвет текста при активной ссылке */
+    height: 100%; /* Задаем высоту 100% */
+    display: flex; /* Используем flex для центрирования текста */
+    align-items: center; /* Центрируем текст по вертикали */
+    padding: 0rem; /* Задаем отступы */
+  }
