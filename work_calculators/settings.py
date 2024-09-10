@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 import os
 from pathlib import Path
+from config import DJANGO_KEY # нет админских прав для переменных сред, добавил ключ в config.py / в .gitignore прописал
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,7 +22,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.getenv('DJANGO_KEY') # загружать ключ из переменной окружения
+SECRET_KEY = os.getenv('DJANGO_KEY')
+if not SECRET_KEY:
+    SECRET_KEY = DJANGO_KEY # загружать ключ из переменной окружения
+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

@@ -55,3 +55,87 @@
     align-items: center; /* Центрируем текст по вертикали */
     padding: 0rem; /* Задаем отступы */
   }
+
+
+
+  /*SELECT ВЫПАДАЮЩЕЕ МЕНЮ (ВЫБОР МОДУЛЯ)*/
+  .form-select {
+    border: 0.1px solid gray; /* Измените на более заметное значение */
+    background-color: white; /* Убедитесь, что фон установлен */
+    color: black; /* Убедитесь, что цвет текста установлен */
+  }
+
+  .form-select:focus {
+    border-color: red; /* Цвет рамки при фокусе */
+    box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25); /* Красная тень при фокусе */
+  }
+
+
+  .form-select:hover {
+    border-color: red; /* Цвет рамки при фокусе */
+    box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25); /* Красная тень при фокусе */
+  }
+
+
+
+  /*НАСТРОЙКА RADIO BUTTONS И CHECKBOX*/
+  .form-check-input {
+      position: absolute;
+      opacity: 0; /* Скрываем стандартный чекбокс */
+  }
+
+  .form-check-label {
+      position: relative;
+      padding-left: 30px; /* Отступ для кастомного чекбокса */
+      cursor: pointer;
+  }
+
+  .form-check-label::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px; /* Ширина кастомного чекбокса */
+      height: 20px; /* Высота кастомного чекбокса */
+      border: 1px solid black ; /* Цвет обводки */
+      background-color: transparent; /* Цвет фона */
+      border-radius: 5px; /* Радиус скругления */
+  }
+
+  .form-check-input:checked + .form-check-label::before {
+      background-color: black; /* Цвет фона при установке галочки */
+      border: 2px solid black; /* Цвет обводки при установке галочки */
+  }
+
+
+  .form-check-input:focus + .form-check-label::before {
+    box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.5); /* Красный ореол при фокусе */
+  }
+
+  .form-check-input:checked + .form-check-label::after {
+      content: '';
+      position: absolute;
+      left: 7px; /* Положение галочки */
+      top: 7px; /* Положение галочки */
+      width: 6px; /* Ширина галочки */
+      height: 12px; /* Высота галочки */
+      border: solid white; /* Цвет галочки */
+      border-width: 0 2px 2px 0; /* Формирование галочки */
+      transform: rotate(45deg); /* Поворот для создания галочки */
+  }
+
+  .form-check-input:checked + .form-check-label:hover::before {
+    border: 2px solid red; /* Красная обводка при наведении на отмеченный чекбокс */
+    background-color: rgba(100, 0, 0, 0.6); /* Легкий красный фон при наведении */
+  }
+
+  .form-check-label:hover::before {
+    border: 2px solid red; /* Красная обводка при наведении */
+    background-color: rgba(255, 0, 0, 0.1); /* Легкий красный фон при наведении */
+  }
+
+  .form-check-label:focus {
+    border-color: red; /* Цвет рамки при фокусе */
+    box-shadow: 0 0 0 0.2rem rgba(255, 0, 0, 0.25); /* Красная тень при фокусе */
+  }

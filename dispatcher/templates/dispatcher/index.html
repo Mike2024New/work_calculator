@@ -1,14 +1,138 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ title }}{% endblock title %}
 {% block content %}
-<div class="shadow p-3 mb-4 mt-4 bg-white rounded"> 
-  <h1>Расчёт мебели серии эталон</h1>
-  <p>В разработке...</p>
-  <form method="POST">
-    {% csrf_token %}
-    <input type="text" class="form-control mb-2">
-    <button type="submit" class='btn btn-dark'>Тестовая кнопка</button>
-  </form>
-</div>
+<script src="{% static 'dispatcher/scripts.js' %}"></script>
+<form method="POST" id="form_0" action="{% url "dispatcher:get_data" %}">
+  {% csrf_token %}
+
+  <!--КОНФИГУРАТОР МОДУЛЕЙ-->
+  <div class="shadow p-3 mb-4 mt-4 bg-white rounded">
+
+    <!--ЗАГОЛОК КОНФИГУРАТОРА МОДУЛЕЙ-->
+    <div class="card-body" id="card-body">
+      <div class="d-flex justify-content-between">
+        <h4>Конфигуратор модулей:</h4>
+        <button type="button" class="btn btn-danger ms-2" type="button" id="modul_reset" name="modul_reset">x</button>
+      </div>
+    </div>
+    <hr id="message_moduls">
+
+    <!--ДИНАМИЧЕСКИЕ БЛОКИ-->
+    <div class="block_0" id="block_0">
+      <span class="badge text-bg-danger rounded-pill" id="badge_modul_0" style="font-size: 1.2rem;">1</span><br><br>
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="d-flex flex-column">
+          <div class="mb-3">
+            <!--ВЫБОР МОДУЛЯ SELECT-->
+            <select name="modul_select_0" id="modul_select_0" class="form-select mb-2">
+                <option>выберите модуль</option>
+                {% for modul in moduls %}
+                <option>{{ modul.art }} {{ modul.name }}</option>
+                {% endfor %}
+            </select>
+
+            <!--ВЫБОР ЭКРАНА RADIOBUTTON-->
+            <div class="mb-3">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="option_screen_0" 
+                id="option_screen_0_0" value=0 checked>
+                <label class="form-check-label" id="lbl_for_screen_0" for="option_screen_0_0">нет экрана</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="option_screen_0" 
+                id="option_screen_45_0" value=45 {% if row.screen == 45 %}checked{% endif %}>
+                <label class="form-check-label" id="lbl_for_screen_45" for="option_screen_45_0">Экран высотой 450 мм</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="option_screen_0" 
+                id="option_screen_85_0" value=85 {% if row.screen == 85 %}checked{% endif %}>
+                <label class="form-check-label" id="lbl_for_screen_85" for="option_screen_85_0">Экран высотой 850 мм</label>
+              </div>
+            </div> <!--RADIOBUTTON ВЫБОР ЭКРАНА-->
+            
+
+            <!--CHECKBOX ШИНА МОНТАЖНАЯ-->
+            <div class="form-check">
+              <input class="form-check-input bg-danger" type="checkbox" value="" 
+              id="select_schine_0" name="select_schine_0">
+              <label class="form-check-label" id="lbl_for_schine_0" for="select_schine_0">Шина монтажная</label>
+            </div><!--CHECKBOX ШИНА МОНТАЖНАЯ-->
+          </div>
+        </div>
+        <!--ТОЧКА ВСТАВКИ КАРТИНКИ-->
+          <img src="{% static "images/select_modul.png" %}" alt="" id="modul_img_0">
+      </div>
+    <hr id="hr_1">
+    <!--КОНЕЦ ДИНАМИЧЕСКОГО БЛОКА-->
+  </div>
+
+
+    <p style="text-align: center;" id="stop_dinamic">Общая длина: <span id="all_lens" style="color:red;font-weight: 600;font-size: 1.1rem;"></span> см (учитываются только прямые модули.)</p>
+    <!--КНОПКИ ДОБАВЛЕНИЯ УДАЛЕНИЯ БЛОКОВ МОДУЛЕЙ-->
+    <div class="d-flex justify-content-between">
+      <div class="d-flex">
+        <button type="button" class="btn btn-dark me-2 " id="add_block" name="modul_add_block">+</button>
+        <button type="button" class="btn btn-danger me-2" id="minus_block" name="modul_minus_block">-</button>
+        {% if debug %}
+          <button type="button" class="btn btn-danger me-2" id="test" name="test">test</button>
+          <button type="button" class="btn btn-dark me-2" id="test2" name="test2">test 2</button>
+          <button type="button" class="btn btn-dark me-2" id="test3" name="test3">test 3</button>
+        {% endif %}
+      </div>
+    </div>
+
+
+  </div> <!--КОНЕЦ КОНФИГУРАТОРА МОДУЛЕЙ-->
+
+  <!--КНОПКИ ОТПРАВКИ ФОРМЫ (POST)-->
+  <div class="shadow p-3 mb-5 mt-4 bg-white rounded" style="border: 0.01px solid gray;"> 
+    <div class="d-flex justify-content-between">
+      <button type="submit" class="btn btn-dark" name="modul_send">Расчёт станции</button>
+      <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal">
+        Сбросить всё
+      </button>
+    </div>
+  </div>
+
+
+
+    <!-- Модальное окно ОЧИСТКА ВСЕХ ПОЛЕЙ ФОРМЫ -->
+    <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content" style="border: 0.01px solid gray;">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmModalLabel">Подтверждение</h5>
+            <button type="submit" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>Вы точно хотите очистить все введенные данные?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Отмена</button>
+            <button type="submit" class="btn btn-danger" name="all_reset">Да, очистить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</form>
+
+
+
+<script>
+  const baseUrl = window.location.origin; // Получаем базовый URL
+  // ПЕРЕДАЧА ПУТИ К VIEW get_moduls
+  var getModulsUrl = "{% url 'dispatcher:get_moduls' %}"; // Относительный URL к view
+  var send_session = "{% url 'dispatcher:send_session' %}" // Относительный URL к view 
+  var send_for_check = "{% url 'dispatcher:check_parametrs' %}"
+  
+  getModulsUrl = `${baseUrl}${getModulsUrl}`; // полный URL для получения модулей (для ajax запроса)
+  send_session = `${baseUrl}${send_session}`; // полный URL для получения сессии (для ajax запроса)
+  send_for_check = `${baseUrl}${send_for_check}`;// полный URL для получения сессии (для ajax запроса)
+</script>
+
 {% endblock content %}
+
