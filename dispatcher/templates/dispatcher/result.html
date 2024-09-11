@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock title %}
+{% block content %}
+<div class="shadow p-3 mb-4 mt-4 bg-white rounded"> 
+  <h1>Результат</h1>
+  <p>В разработке...</p>
+  <p>{{ project.name }}</p>
+  <a href="{% url "dispatcher:index" %}"><button type="button" class="btn btn-danger ms-2" type="button" name="modul_reset">Назад</button></a>
+</div>
+{% endblock content %}

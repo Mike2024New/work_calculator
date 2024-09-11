@@ -9,4 +9,6 @@ urlpatterns = [
     path('dispatcher/get_moduls/', view = views.get_moduls, name = "get_moduls"),
     path('dispatcher/send_session/', view = views.send_session, name = "send_session"),
     path('dispatcher/check_parametrs/', view = views.check_parametrs, name = "check_parametrs"),
+    path('dispatcher/get_one_modul/', view = views.get_one_modul, name = "get_one_modul"),
+    path('dispatcher/show_result/', view = views.show_result, name = "show_result")
 ]

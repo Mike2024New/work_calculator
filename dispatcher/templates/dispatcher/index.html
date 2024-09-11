@@ -7,6 +7,21 @@
 <form method="POST" id="form_0" action="{% url "dispatcher:get_data" %}">
   {% csrf_token %}
 
+  <div class="shadow p-3 mb-4 mt-4 bg-white rounded">
+    <div class="card-body" id="card-body">
+      <div class="d-flex justify-content-between">
+        <h4>Информация о проекте:</h4>
+        <button type="button" class="btn btn-danger ms-2" type="button" name="modul_reset">x</button>
+      </div>
+    </div>
+    <hr>
+    <div class="d-flex align-items-center mb-2">
+      <label for="project_name" class="me-2">Название проекта:</label>
+      <input type="text" name="project_name" placeholder="{{ project.name|default:0 }}" id="project_name" value="{{ meta.project_name }}" class="form-control me-5" style="width: 460px;border: 0.01px solid gray;">
+    </div>
+    
+  </div>
+
   <!--КОНФИГУРАТОР МОДУЛЕЙ-->
   <div class="shadow p-3 mb-4 mt-4 bg-white rounded">
 
@@ -18,6 +33,7 @@
       </div>
     </div>
     <hr id="message_moduls">
+    
 
     <!--ДИНАМИЧЕСКИЕ БЛОКИ-->
     <div class="block_0" id="block_0">
@@ -26,7 +42,7 @@
         <div class="d-flex flex-column">
           <div class="mb-3">
             <!--ВЫБОР МОДУЛЯ SELECT-->
-            <select name="modul_select_0" id="modul_select_0" class="form-select mb-2">
+            <select name="modul_select_0" id="modul_select_0" class="form-select mb-2" style="width: 600px;">
                 <option>выберите модуль</option>
                 {% for modul in moduls %}
                 <option>{{ modul.art }} {{ modul.name }}</option>
@@ -62,7 +78,12 @@
           </div>
         </div>
         <!--ТОЧКА ВСТАВКИ КАРТИНКИ-->
-          <img src="{% static "images/select_modul.png" %}" alt="" id="modul_img_0">
+          <figure style="text-align: center;color:red;font-weight: 600;font-size: 1.1rem;">
+            <img src="{% static "images/select_modul.png" %}" alt="нет изображения" id="modul_img_0">
+            <figcaption id="modul_img_caption_0"></figcaption>
+          </figure>
+
+          
       </div>
     <hr id="hr_1">
     <!--КОНЕЦ ДИНАМИЧЕСКОГО БЛОКА-->
@@ -82,14 +103,68 @@
         {% endif %}
       </div>
     </div>
-
-
   </div> <!--КОНЕЦ КОНФИГУРАТОРА МОДУЛЕЙ-->
+
+
+    <!-- БЛОК С МОНИТОРАМИ -->
+    <div class="shadow p-3 mb-4 mt-4 bg-white rounded"  style="border: 0.01px solid gray;"> 
+      <div class="d-flex justify-content-between">
+        <h4>Мониторы:</h4>
+        <button class="btn btn-danger ms-2" id="monitor_reset" name="monitor_reset">x</button>
+      </div>
+      <hr>
+      <div class="d-flex justify-content-between align-items-start">
+        <div class="d-flex flex-column">
+          <div class="d-flex align-items-center mb-2">
+            <label for="monitor_type_1" class="me-2" style="width: 260px;">Один монитор на стойке <span style="color:red;font-weight: 600;">36</span> мм:</label>
+            <input type="number" name="monitor_type_1" min="0" id="monitor_type_1" value="{{ options.monitor_type_1|default:0 }}" class="form-control me-5" style="width: 100px;border: 0.01px solid gray;">
+          </div>
+          <div class="d-flex align-items-center mb-2">
+            <label for="monitor_type_2" class="me-2" style="width: 260px;">Два монитора на стойке <span style="color:red;font-weight: 600;">76</span> мм:</label>
+            <input type="number" name="monitor_type_2" min="0" id="monitor_type_2" value="{{ options.monitor_type_2|default:0 }}" class="form-control me-5" style="width: 100px;border: 0.01px solid gray;">
+          </div>
+          <div class="d-flex align-items-center">
+            <label for="monitor_type_3" class="me-2"  style="width: 260px;">Один монитор на стойке <span style="color:red;font-weight: 600;">76</span> мм:</label>
+            <input type="number" name="monitor_type_3" min="0" id="monitor_type_3" value="{{ options.monitor_type_3|default:0 }}" class="form-control me-5" style="width: 100px;border: 0.01px solid gray;">
+          </div>
+          
+  
+    </div>
+      <img src="https://www.unitex.ru/images/dispetch/aksessuary/%D0%A4%D0%9B-1715,45.jpg" alt="" width=180 height=180>
+      <img src="https://www.unitex.ru/images/dispetch/aksessuary/%D0%A4%D0%9B-1715,85.jpg" alt="" width=180 height=180>
+      <img src="https://www.unitex.ru/images/dispetch/aksessuary/%D0%BA%D1%80%D0%BE%D0%BD%D1%88%D1%82%D0%B5%D0%B9%D0%BD__.jpg" alt="" width=180 height=180>
+  
+    </div>
+    </div>
+
+
+    <!-- РОЗЕТКИ И RJ 45 -->
+  <div class="shadow p-3 mb-4 mt-4 bg-white rounded"  style="border: 0.01px solid gray;"> 
+    <div class="d-flex justify-content-between">
+      <h4>  Электрика:</h4>
+      <button class="btn btn-danger ms-2" type="submit" id="electric_ajax" name="electric_ajax">x</button>
+    </div>
+    <hr>
+    <div class="d-flex justify-content-between align-items-start">
+      <div class="d-flex flex-column">
+        <div class="d-flex align-items-center mb-2">
+          <label for="electric_power" class="me-2"  style="width: 260px;">Блок розеток силовой <span style="color:red;font-weight: 600;">7x220</span>:</label>
+          <input type="number" name="electric_power" min="0" id="electric_power" value="{{ options.electric_power|default:0 }}" class="form-control me-5" style="width: 100px;border: 0.01px solid gray;">
+        </div>
+        <div class="d-flex align-items-center mb-2">
+          <label for="electric_rj45" class="me-2"  style="width: 260px;">Панель коммутационная <span style="color:red;font-weight: 600;">24хRJ45</span>:</label>
+          <input type="number" name="electric_rj45" min="0" id="electric_rj45" value="{{ options.electric_rj45|default:0 }}" class="form-control me-5" style="width: 100px;border: 0.01px solid gray;">
+        </div>
+      </div>
+      <img src="https://www.unitex.ru/images/dispetch/aksessuary/%D0%A4%D0%9B-1731_s.jpg" alt="" width=150 height=150>
+      <img src="https://www.unitex.ru/images/dispetch/aksessuary/%D0%A4%D0%9B-1732_s.jpg" alt="" width=150 height=150>
+    </div>
+  </div>
 
   <!--КНОПКИ ОТПРАВКИ ФОРМЫ (POST)-->
   <div class="shadow p-3 mb-5 mt-4 bg-white rounded" style="border: 0.01px solid gray;"> 
     <div class="d-flex justify-content-between">
-      <button type="submit" class="btn btn-dark" name="modul_send">Расчёт станции</button>
+      <button type="submit" class="btn btn-dark" id="modul_send" name="modul_send">Расчёт станции</button>
       <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal">
         Сбросить всё
       </button>
@@ -128,10 +203,31 @@
   var getModulsUrl = "{% url 'dispatcher:get_moduls' %}"; // Относительный URL к view
   var send_session = "{% url 'dispatcher:send_session' %}" // Относительный URL к view 
   var send_for_check = "{% url 'dispatcher:check_parametrs' %}"
+  var get_one_modul = '{% url "dispatcher:get_one_modul" %}'
   
   getModulsUrl = `${baseUrl}${getModulsUrl}`; // полный URL для получения модулей (для ajax запроса)
   send_session = `${baseUrl}${send_session}`; // полный URL для получения сессии (для ajax запроса)
   send_for_check = `${baseUrl}${send_for_check}`;// полный URL для получения сессии (для ajax запроса)
+  get_one_modul = `${baseUrl}${get_one_modul}`;
+
+
+  // ОЧИСТКА ПОЛЕЙ МОНИТОРОВ
+  document.getElementById('monitor_reset').addEventListener('click', function(event) {
+    event.preventDefault(); // отмена стандартного поведения формы
+
+    var monitorTypes = ["monitor_type_1","monitor_type_2","monitor_type_3"]
+    for (var i=0; i < monitorTypes.length; i++){
+      document.getElementById(monitorTypes[i]).value = 0
+    }
+  });
+
+
+  // ОЧИСТКА ПОЛЕЙ РОЗЕТКИ + МОНИТОРЫ
+  document.getElementById('electric_ajax').addEventListener('click', function(event) {
+    event.preventDefault(); // отмена стандартного поведения формы
+    document.getElementById("electric_power").value = 0;
+    document.getElementById("electric_rj45").value = 0;
+  });
 </script>
 
 {% endblock content %}

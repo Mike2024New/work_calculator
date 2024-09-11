@@ -6,10 +6,61 @@ document.addEventListener('DOMContentLoaded', function() {
     load_session(); // при загрузке страницы нужно выгрузить данные из сессии
 
 
+  // AJAX -> ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ
+  function modul_img_update(value_request) {
+    return new Promise((resolve, reject) => {
+      var xhr = new XMLHttpRequest();
+      xhr.open('POST', get_one_modul, true);
+      xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
+      xhr.onload = function() {
+        if (xhr.status === 200) {
+          var response = JSON.parse(xhr.responseText);
+          console.log(response.url_image);
+          resolve(response.url_image); // Возвращаем URL изображения
+        } else {
+          reject("Произошла ошибка при отправке данных. Пожалуйста попробуйте ещё раз.");
+        }
+      };
+
+      var formData = new FormData(document.getElementById("form_0"));
+      formData.append('value_request', value_request);
+      var params = new URLSearchParams(formData).toString();
+      xhr.send(params);
+    });
+  }
+
+
+  // ОБНОВЛЕНИЕ ИЗОБРАЖЕНИЙ НА САЙТЕ
+  async function update_img(value_request,img_id){
+    console.log(value_request);
+    var response = await modul_img_update(value_request);
+    document.getElementById("modul_img_" + img_id).src = response;
+  }
+
+  // TEST 3 -> НАЖАТИЕ КНОПКИ TEST3 ОБРАБОТКА
+  document.getElementById('test3').addEventListener('click', async function(event) {
+  }); // ОБРАБОТКА КНОПКИ TEST
+
+  // CHANGE -> ОБРАБОТКА ЛЮБЫХ ИЗМЕНЕНИЙ НА СТРАНИЦЕ (СМЕНА ЗНАЧЕНИЯ SELECT, УСТАНОВКА ГАЛОЧКИ)
+  // Используем делегирование событий
+  document.addEventListener('change', async function(event) {
+    console.log("изменение select");
+    var selectedElement = event.target.closest('select[id^="modul_select_"]'); // Находим ближайший select с id, начинающимся с "my_select_"
+    if (selectedElement){
+      var selectedId = event.target.id; // Получаем id выделенного селектора
+      selectedId = selectedId.split('_')[2]; // извлечение номера идентификатора
+      var select_value =  selectedElement.value; // значение выбранного select 
+      update_img(select_value,selectedId);
+    }
+  });
+
+
     // ОБНОВЛЕНИЕ SELECT ИЗ СПИСКА МОДУЛЕЙ (ЗАПОЛНЕНИЕ OPTIONS)
     function select_modul_update(select_id,modulList){
       // ЗАПОЛНЕНИЕ SELECT (ВЫПАДАЮЩИЙ СПИСОК) ЗНАЧЕНИЯМИ (OPTIONS)
       var selectElement = document.getElementById('modul_select_'+select_id); // получение объекта select
+      console.log(selectElement);
+      console.log(select_id);
 
       // Очистка текущих опций (чтобы значения не задублировались)
       selectElement.innerHTML = '';
@@ -30,20 +81,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
     // ЗАГРУЗКА СЕССИИ (ИСПОЛЬЗУЕТСЯ ПРИ ИНИЦИАЛИЗАЦИИ)
-    async function load_session(){
-      var moduls_from_session = await ajax_get_session(false); // получаем значения для заполнения модуль листа
-      console.log("Из сессии получены модули" + JSON.stringify(moduls_from_session));
-      for(let i=0; i < moduls_from_session.length; i++){
-        if (i>0) {
-          add_block(); // перенастроить заполнение блоков (нужен актуальный ajax)
-          var moduls = await ajax_get_modulsd(); // получаем значения для заполнения модуль листа
-          select_modul_update(blockCount,moduls); // обновляем значения списков
+    async function load_session() {
+      var moduls_from_session = await ajax_get_session(false);
+      //console.log("Из сессии получены модули: " + JSON.stringify(moduls_from_session));
+      
+      for (let i = 0; i < moduls_from_session.length; i++) {
+        if (i > 0) {
+          await add_block(); // Добавляем новый блок | ВАЖНО: НУЖНО БЫЛО ДОЖДАТЬСЯ ЗАВЕРШЕНИЯ РАБОТЫ ADD BLOCK (AWAIT!!)
+          var moduls = await ajax_get_modulsd(); // Получаем значения для заполнения модуль листа
+          // Обновляем значения списков только после добавления блока
+          select_modul_update(blockCount, moduls);
         }
-      console.log(moduls_from_session[i].modul.art+"  "+moduls_from_session[i].modul.name);
-      var block_name = moduls_from_session[i].modul.art+" "+moduls_from_session[i].modul.name;
-      var screen = moduls_from_session[i].screen;
-      var schine = moduls_from_session[i].schine;
-      set_value_block(i,block_name,screen,schine); // установка значений в блоке
+        
+        console.log(moduls_from_session[i].modul.art + " " + moduls_from_session[i].modul.name);
+        var block_name = moduls_from_session[i].modul.art + " " + moduls_from_session[i].modul.name;
+        var screen = moduls_from_session[i].screen;
+        var schine = moduls_from_session[i].schine;
+        set_value_block(i, block_name, screen, schine); // Установка значений в блоке
+        console.log("Из сессии получен модуль: " + moduls_from_session[i].modul.url_image);
+        document.getElementById("modul_img_" + blockCount).src = moduls_from_session[i].modul.url_image;
       }
     }
 
@@ -174,25 +230,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const hrElement = document.getElementById(element_id);  // Находим элемент hr
         hrElement.insertAdjacentHTML('afterend', alertHTML); // Вставляем уведомление после элемента hr
       }
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     }
 
-    // TEST -> НАЖАТИЕ КНОПКИ TEST2 ОБРАБОТКА
+    // TEST 2 -> НАЖАТИЕ КНОПКИ TEST2 ОБРАБОТКА
     document.getElementById('test2').addEventListener('click', async function(event) {
       showBootstrapAlert('TEST MESSAGE','hr','message_moduls');
     }); // ОБРАБОТКА КНОПКИ TEST
 
 
-    // TEST -> НАЖАТИЕ КНОПКИ TEST2 ОБРАБОТКА
-    document.getElementById('test3').addEventListener('click', async function(event) {
-      var res = await ajax_check_parametrs('is_add_block',blockCount); // отправить тип проверки и параметр
+    document.getElementById('modul_send').addEventListener('click', async function(event) {
+      event.preventDefault(); // Отменяем стандартное поведение формы html (перехватываем кнопку)
+      // проверка формы выполняется здесь //
+      var res = await ajax_check_parametrs('is_send_form',blockCount); // отправить тип проверки и параметр
+      //alert(JSON.stringify(res));
       if(res.is_check){
-        console.log('разрешение на действие дано');
-        add_block();
+        document.getElementById('form_0').submit(); // в ручную отправляем форму на сервер
       }else{
         console.log('ошибка проверка не пройдена');
         showBootstrapAlert(res.msg,'hr','message_moduls');
       }
-      //console.log("AJAX результат: " + JSON.stringify(res));
+      // проверка формы выполняется здесь //
     }); // ОБРАБОТКА КНОПКИ TEST
 
 
@@ -208,6 +269,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // ОБРАБОТКА КНОПКИ MODUL RESET "x" СБРОС БЛОКОВ С МОДУЛЯМИ
     document.getElementById('modul_reset').addEventListener('click', async function(event) {
       reset_block();
+      update_img(null,0);
     });
 
 
@@ -257,6 +319,11 @@ document.addEventListener('DOMContentLoaded', function() {
           forParts[forParts.length - 1] = blockCount; // Заменяем последний элемент на новый номер
           element.htmlFor = forParts.join('_'); // Присваиваем новое значение
       });
+      
+      const imgElement = newBlock.querySelector(`#modul_img_${blockCount}`);
+      var response = await modul_img_update('reset'); // получение картинки из AJAX
+      imgElement.src = response;
+      //document.getElementById("modul_img_" + img_id).src = response;
       
       // Вставляем новый блок перед элементом STOP_DINAMIC
       STOP_DINAMIC.insertAdjacentElement('beforebegin', newBlock);
@@ -311,11 +378,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // НАЖАТИЕ НА КНОПКУ ДОБАВЛЕНИЕ НОВОГО БЛОКА МОДУЛЯ 
     document.getElementById('add_block').addEventListener('click', async function(event) {
-      add_block(); // добавляем новый блок (скопированный с нулевого блока)
-      var moduls = await ajax_get_modulsd(); // получаем значения для заполнения модуль листа
-      select_modul_update(blockCount,moduls); // обновляем значения списков
-      set_value_block(blockCount,'выберите модуль','0',false); // устанавливаем значения по умолчанию
-
+      var res = await ajax_check_parametrs('is_add_block',blockCount); // отправить тип проверки и параметр
+      if(res.is_check){
+        await add_block(); // добавляем новый блок (скопированный с нулевого блока)
+        var moduls = await ajax_get_modulsd(); // получаем значения для заполнения модуль листа
+        select_modul_update(blockCount,moduls); // обновляем значения списков
+        set_value_block(blockCount,'выберите модуль','0',false); // устанавливаем значения по умолчанию
+        //update_img('reset',blockCount); // устанаваем картинку по умолчанию
+      }else{
+        console.log('ошибка проверка не пройдена');
+        showBootstrapAlert(res.msg,'hr','message_moduls');
+      }
     });
 
 

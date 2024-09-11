@@ -21,13 +21,13 @@ test_moduls = [
 
 
     # СТОЛ ЛЕВЫЙ:
-    {"art": "ФЛ-1102", "name": "Модуль стола для диспетчера правый 60х100х76 см, RAL7047", "price": 0, "category": "modul_reiht",
-    "url_image": "https://www.unitex.ru/images/dispetch/stoly/ФЛ-1101-ФЛ-1102-л.jpg", "lens":60},
+    {"art": "ФЛ-1102", "name": "Модуль стола для диспетчера правый 60х100х76 см, RAL7047", "price": 0, "category": "modul_right",
+    "url_image": "https://www.unitex.ru/images/dispetch/stoly/%D0%A4%D0%9B-1101-%D0%A4%D0%9B-1102-%D0%BF.jpg", "lens":60},
 
 
     # СТОЛ ПРОМЕЖУТОЧНЫЙ: // В ПРАЙСЕ НЕ УКАЗАНО СЛОВО ПРОМЕЖУТОЧНЫЙ, НУЖНО ДОБАВЛЯТЬ ПРОГРАММНО В МОДУЛЕ PRICE
     {"art": "ФЛ-1151", "name": "Модуль стола для диспетчера промежуточный 100х100х76 см, RAL7047", "price": 0, "category": "modul_center",
-    "url_image": "https://www.unitex.ru/images/dispetch/stoly/ФЛ-1101-ФЛ-1102-л.jpg", "lens":60},
+    "url_image": "https://www.unitex.ru/images/dispetch/stoly/%D0%A4%D0%9B-1151.jpg", "lens":60},
 
 ]
 
