@@ -1,55 +1,32 @@
+import json
 from django.shortcuts import render,redirect
 from dispatcher.temporary import test_moduls
 from django.http import JsonResponse
 from django.templatetags.static import static
-import re
+from dispatcher.calculate import Calculate
+from dispatcher.base_loader import Moduls
 
-class Moduls:
-    """этот класс работает с комплектующими 
-    позже вынести в отдельный модуль
-    """
-    def __init__(self,moduls) -> None:
-        self.moduls = moduls
+# ПЕРЕМЕННАЯ ДЛЯ ВЗАИМОДЕЙСТВИЯ С БД (В БУДУЩЕМ С МОДЕЛЬЮ)
+manager_moduls = Moduls(moduls=test_moduls) # добавляем коннект с БД (пока временно json из temporary)
 
-    @staticmethod
-    def extract_art(string:str,one_components)->str:
-        """
-        извлечение артикула из входных параметров заполненных полей (для динамических модулей (Стол/Экран/Шина))
-        string -> строка в которой нужно найти артикул
-        one_components -> True артикул состоит из 1 компонента например ФЛ-1001 / False арт состоит из двух компонентов ФЛ-1530.85
-        возвращает извлеченный артикул
-        """
-        if one_components:
-            return re.search(r"(?P<art>ФЛ-\d{4})",string)['art']
-        return re.search(r"(?P<art>ФЛ-\d{4}.\d{2})",string)['art']
-    
-    def get_one_modul_by_art(self, art:str)->dict:
-        """получение модуля по артикулу"""
-        return [row for row in test_moduls if art == row["art"]][0]
-    
-    def get_moduls_by_category(self,keys_in:tuple,is_contains=True)->list:
-        """
-        получение модулей из модели (пока что из тестового словаря в модуле temporary.py, позже будут запросы к модели)
-        keys_in -> список категорий по которым нужно извлечь значения (если содержи то извлечь)
-        is_contais -> инверсия, берем те элементы которые не содержат в категории значения из keys_in
-        """
-        if is_contains:
-            return [row for row in test_moduls if row['category'] in keys_in]
-        return [row for row in test_moduls if row['category'] not in keys_in]
+# перенести в шаблоны В МОДЕЛЬ
+default_project_name = {
+    "name":"project",
+    'ldsp_price':1000, # цена не настоящая показана условно
+    "ldsp_color":"Арктика серый",
+    "metal_color":"RAL 7047", 
+    "discount":0
+    }
 
-
-manager_moduls = Moduls(moduls=test_moduls)
-
-
+# INDEX -> ПЕРВЫЙ ВХОД НА СТРАНИЦУ, ИНИЦИАЛИЗАЦИЯ ПАРАМЕТРОВ СЕССИИ
 def index(request):
     if "moduls" not in request.session:
         request.session['moduls'] = []
     if "options" not in request.session:
         request.session['options'] = {"monitor_type_1":0,"monitor_type_2":0,"monitor_type_3":0, "electric_power":0, "electric_rj45":0}
     if "project_name" not in request.session:
-        request.session["project_name"] = {"project_name":"project",}
-    
-    print(f"==> {request.session['project_name']}")
+        request.session["project_name"] = default_project_name
+
 
     moduls_list = manager_moduls.get_moduls_by_category(keys_in=('modul_left','modul_single'))
 
@@ -59,21 +36,16 @@ def index(request):
         'debug' : True,
         'project' : request.session["project_name"],
         'options' : request.session['options'], # мониторы,розетки, интернет
+        'default' : json.dumps(default_project_name), # обязательно преобразовать в json- строку иначе java не спарсит её
     }
 
     return render(request,'dispatcher/index.html',context)
 
 
-def show_result(request):
-    context={
-        "title":"результат расчёта",
-        'project' : request.session["project_name"],
-    }
-    return render(request,'dispatcher/result.html',context)
-
 # POST -> ИЗВЛЕЧЕНИЕ ПАРАМЕТРОВ ИЗ ФОРМЫ (НАЖАТИЕ НА КНОПКУ "РАСЧЁТ СТАНЦИИ")
 def get_data(request):
     """обработчик кнопки расчёт станции, принимает post запрос с данными форм"""
+    # print(request.session["project_name"])
     request.session['moduls'] = []
     extract_values = []
     # определение количества модулей
@@ -90,7 +62,6 @@ def get_data(request):
                     print(f'get moduls-> не найден артикул в строке {request.POST[key]}, err: {err}')
 
         # ДОБАВЛЕНИЕ ИЗВЛЕЧЕННЫХ ДАННЫХ В СЕССИЮ
-        print(request.POST)
         for i in range(len(extract_values)):
             modul = manager_moduls.get_one_modul_by_art(art=extract_values[i])
             screen = request.POST[f'option_screen_{i}'] if f'option_screen_{i}' in request.POST else False
@@ -98,20 +69,92 @@ def get_data(request):
             request.session['moduls'].append({"modul":modul,"screen":screen,"schine":schine})
 
         request.session['options'] = {
-            "monitor_type_1":request.POST['monitor_type_1'],
-            "monitor_type_2":request.POST['monitor_type_2'],
-            "monitor_type_3":request.POST['monitor_type_3'], 
-            "electric_power":request.POST['electric_power'], 
-            "electric_rj45":request.POST['electric_rj45'],
+            "monitor_type_1":int(request.POST['monitor_type_1']),
+            "monitor_type_2":int(request.POST['monitor_type_2']),
+            "monitor_type_3":int(request.POST['monitor_type_3']),
+            "electric_power":int(request.POST['electric_power']), 
+            "electric_rj45":int(request.POST['electric_rj45']),
             }
-        
 
         # ПОЛУЧЕНИЕ ИНФОРМАЦИИ О ПРОЕКТЕ
         if request.POST["project_name"]!="":
             request.session["project_name"]["name"] = request.POST["project_name"]
+
+        if request.POST["ldsp_color"]!="":
+            request.session["project_name"]["ldsp_color"] = request.POST["ldsp_color"]
+
+        if request.POST["ldsp_price"]!="":
+            request.session["project_name"]["ldsp_price"] = request.POST["ldsp_price"]
+        
+        if request.POST["metal_color"]!="":
+            request.session["project_name"]["metal_color"] = request.POST["metal_color"]
+
+        if request.POST["discount"]!="":
+            request.session["project_name"]["discount"] = request.POST["discount"]
+
+    # точка вызова обработчика для расчёта стоимости
+    #========================
+    # обработчик вынести в отдельный модуль
+
     return redirect('dispatcher:show_result')
 
 
+# ОТОБРАЖЕНИЕ РЕЗУЛЬТАТА ПОЛЬЗОВАТЕЛЮ / ЗАПРАШИВАЕТ РАСЧЁТ ИЗДЕЛИЙ НА БАЗЕ ВВЕДЕННЫХ ПОЛЬЗОВАТЕЛЕМ ПАРАМЕТРОВ
+def show_result(request):
+    res = Calculate(names=request.session["project_name"],moduls=request.session['moduls'],options=request.session['options'])
+    # show_session_consol(request)
+    # print(res.output)
+    context={
+        "title":"результат расчёта",
+        'project' : request.session["project_name"],
+    }
+    return render(request,'dispatcher/result.html',context)
+
+
+# SESSION -> ВСПОМОГАТЕЛЬНЫЙ, ПОКАЗЫВАЕТ ДАННЫЕ ХРАНЯЩИЕСЯ В СЕССИИ
+def show_session_consol(request):
+    print('='*50)
+    print(request.session['moduls'])
+    print('='*50)
+    print(request.session['options'])
+    print('='*50)
+    print(request.session['project_name'])
+    print('='*50)
+
+
+# SESSION -> ОЧИСТИТЬ СЕССИЮ (УКАЗАТЬ КЛЮЧ ОЧИЩАЕМОЙ СЕССИИ)
+def clear_session(request,del_key):
+    if del_key == 'all_reset':
+        request.session['moduls'] = [] # если запрос на удаление (кнопка сброс модулей, то очистить сессию)
+        request.session['options'] = {"monitor_type_1":0,"monitor_type_2":0,"monitor_type_3":0, "electric_power":0, "electric_rj45":0}
+        # заменить на ключи (добавить шаблоны)
+        request.session["project_name"] = default_project_name
+    elif del_key == 'del_name':
+        request.session["project_name"] = {"name":"project","ldsp_color":"Арктика серый","metal_color":"RAL 7047", "discount":0}
+    elif del_key == 'del_monitor':
+        request.session['options'] = {
+            "monitor_type_1":0,
+            "monitor_type_2":0,
+            "monitor_type_3":0, 
+            "electric_power":request.POST["electric_power"], 
+            "electric_rj45":request.POST["electric_rj45"], 
+            }
+    elif del_key == 'del_electric':
+        request.session['options'] = {
+            "monitor_type_1":request.POST["monitor_type_1"], 
+            "monitor_type_2":request.POST["monitor_type_2"], 
+            "monitor_type_3":request.POST["monitor_type_3"], 
+            "electric_power":request.POST["electric_power"], 
+            "electric_rj45":request.POST["electric_rj45"], 
+            }
+    elif del_key == 'del_modul':
+        request.session['moduls'] = [] # если запрос на удаление (кнопка сброс модулей, то очистить сессию)
+    show_session_consol(request)
+
+
+# ======================= ОБРАБОТКА AJAX ЗАПРОСОВ ===============================================
+
+# AJAX -> ПОЛУЧЕНИЕ КАРТИНКИ НА СТРАНИЦУ
 def get_one_modul(request):
     if 'value_request' in request.POST:
         select_value = request.POST['value_request']
@@ -123,10 +166,9 @@ def get_one_modul(request):
             url_image_default = static("images/select_modul.png")
             return JsonResponse({"url_image":url_image_default,"img_len":0})   
 
-
+# AJAX -> ПРОВЕРКА ПАРАМЕТРОВ В ФОРМЕ (ПОСЛЕ ТОГО КАК ПОЛЬЗОВАТЕЛЬ НАЖАЛ РАСЧЁТ СТАНЦИИ)
 def check_parametrs(request):
     print('check_parametrs')
-    print(request.POST)
     permission = True
     msg = None
     """AJAX WITH FRONTEND ПРОВЕРКА ДИНАМИЧЕСКИХ БЛОКОВ ПЕРЕД ЗАПОЛНЕНИЕМ, ЕСЛИ В ПОСЛЕДНЕМ БЛОКЕ В SELECT НЕ ВЫБРАН МОДУЛЬ ИЛИ ВЫБРАН НЕ ТОТ, ТО ЗАПРЕТИТЬ ДОБАВЛЯТЬ БЛОК"""
@@ -154,7 +196,7 @@ def check_parametrs(request):
 
         # ПРОВЕРКА, ЧТО УКАЗАНЫ МОНИТОРЫ
         if any([int(request.POST[key])>0 for key in request.POST if "monitor_type_" in key]):
-            print(request.POST)
+            # print(request.POST)
             for key in request.POST:
                 if "select_schine_" in key:
                     break
@@ -203,22 +245,26 @@ def check_parametrs(request):
     return JsonResponse({'check_info':{'is_check':permission,'msg': msg}}) # все проверки пройдены всё ок
 
 
-# SESSION -> ОЧИСТИТЬ СЕССИЮ
-def clear_session(request):
-    request.session['moduls'] = [] # если запрос на удаление (кнопка сброс модулей, то очистить сессию)
-    request.session['options'] = {"monitor_type_1":0,"monitor_type_2":0,"monitor_type_3":0, "electric_power":0, "electric_rj45":0}
-    request.session["project_name"]["name"] = "project"
-
-
 # AJAX -> ОТПРАВКА СЕССИИ
 def send_session(request):
+    print('send_session')
     if request.POST['session_del'] == 'true': # очистка сессии (сброс)
-        clear_session(request)
+        if request.POST['session_del_key']=='all_reset':
+            clear_session(request,del_key = 'all_reset')
+        elif request.POST['session_del_key']=='del_name':
+            clear_session(request,del_key = 'del_name')
+        elif request.POST['session_del_key']=='del_monitor':
+            clear_session(request,del_key = 'del_monitor')
+        elif request.POST['session_del_key']=='del_electric':
+            clear_session(request,del_key = 'del_electric')
+        elif request.POST['session_del_key']=='del_modul':
+            clear_session(request,del_key = 'del_modul')
     return JsonResponse({'session':request.session['moduls']})
 
 
 # AJAX -> ОТПРАВКА МОДУЛЕЙ
 def get_moduls(request):
     """отправка всех модулей через ajax, для заполнения списков"""
-    moduls_list = manager_moduls.get_moduls_by_category(keys_in=('modul_left','modul_single'),is_contains=False)
+    print("get_moduls")
+    moduls_list = manager_moduls.get_moduls_by_category(keys_in=('modul_right','modul_center','modul_angle_90'),is_contains=True)
     return JsonResponse({'moduls':moduls_list})

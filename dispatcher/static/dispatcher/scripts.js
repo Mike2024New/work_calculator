@@ -6,30 +6,6 @@ document.addEventListener('DOMContentLoaded', function() {
     load_session(); // при загрузке страницы нужно выгрузить данные из сессии
 
 
-  // AJAX -> ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ
-  function modul_img_update(value_request) {
-    return new Promise((resolve, reject) => {
-      var xhr = new XMLHttpRequest();
-      xhr.open('POST', get_one_modul, true);
-      xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
-      xhr.onload = function() {
-        if (xhr.status === 200) {
-          var response = JSON.parse(xhr.responseText);
-          console.log(response.url_image);
-          resolve(response.url_image); // Возвращаем URL изображения
-        } else {
-          reject("Произошла ошибка при отправке данных. Пожалуйста попробуйте ещё раз.");
-        }
-      };
-
-      var formData = new FormData(document.getElementById("form_0"));
-      formData.append('value_request', value_request);
-      var params = new URLSearchParams(formData).toString();
-      xhr.send(params);
-    });
-  }
-
-
   // ОБНОВЛЕНИЕ ИЗОБРАЖЕНИЙ НА САЙТЕ
   async function update_img(value_request,img_id){
     console.log(value_request);
@@ -37,9 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("modul_img_" + img_id).src = response;
   }
 
-  // TEST 3 -> НАЖАТИЕ КНОПКИ TEST3 ОБРАБОТКА
-  document.getElementById('test3').addEventListener('click', async function(event) {
-  }); // ОБРАБОТКА КНОПКИ TEST
+
 
   // CHANGE -> ОБРАБОТКА ЛЮБЫХ ИЗМЕНЕНИЙ НА СТРАНИЦЕ (СМЕНА ЗНАЧЕНИЯ SELECT, УСТАНОВКА ГАЛОЧКИ)
   // Используем делегирование событий
@@ -73,7 +47,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
       modulList.forEach(modul => {
         var option = document.createElement('option');
-        option.text = modul.art + " " + modul.name;
+        console.log(modul.art + " " + modul.name);
+        option.text = modul.art.trim() + " " + modul.name.trim();
         selectElement.add(option);
         });
         
@@ -104,8 +79,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
+    // // TEST 2 -> НАЖАТИЕ КНОПКИ TEST2 ОБРАБОТКА
+    // document.getElementById('test2').addEventListener('click', async function(event) {
+    //   showBootstrapAlert('TEST MESSAGE','hr','message_moduls');
+    // }); // ОБРАБОТКА КНОПКИ TEST
+
+
+    // // TEST 3 -> НАЖАТИЕ КНОПКИ TEST3 ОБРАБОТКА
+    // document.getElementById('test3').addEventListener('click', async function(event) {
+    // }); // ОБРАБОТКА КНОПКИ TEST
+
+
     // AJAX -> ПОЛУЧЕНИЕ СЕССИИ ОТ VIEW.SEND_SESSION / для сброса модулей в сессии используется ключ del_session
-    function ajax_get_session(del_session=false){
+    function ajax_get_session(del_session=false,del_key=null){
       // AJAX ПОЛУЧЕНИЕ МОДУЛЕЙ ИЗ VIEW dispatcher:get_session
       var xhr = new XMLHttpRequest();
       xhr.open('POST', send_session, true);
@@ -134,6 +120,11 @@ document.addEventListener('DOMContentLoaded', function() {
     
         var formData = new FormData(document.getElementById('form_0'));
         formData.append('session_del',del_session);
+        if(del_key){
+          formData.append('session_del_key',del_key);
+        }else{
+          formData.append('session_del_key','all_reset');
+        }
         var params = new URLSearchParams(formData).toString();
         xhr.send(params);
       });
@@ -211,6 +202,69 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 
+    // AJAX -> ПОЛУЧЕНИЕ ИЗОБРАЖЕНИЯ
+    function modul_img_update(value_request) {
+      return new Promise((resolve, reject) => {
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', get_one_modul, true);
+        xhr.setRequestHeader('Content-Type', "application/x-www-form-urlencoded");
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            var response = JSON.parse(xhr.responseText);
+            console.log(response.url_image);
+            resolve(response.url_image); // Возвращаем URL изображения
+          } else {
+            reject("Произошла ошибка при отправке данных. Пожалуйста попробуйте ещё раз.");
+          }
+        };
+
+        var formData = new FormData(document.getElementById("form_0"));
+        formData.append('value_request', value_request);
+        var params = new URLSearchParams(formData).toString();
+        xhr.send(params);
+      });
+    }
+
+    // ОЧИСТКА ПОЛЕЙ NAME PROJECT сброс значений в поле информация о проекте на значения по умолчанию
+    document.getElementById('project_name_reset').addEventListener('click', function(event) {
+      //alert(JSON.stringify(default_project_name));
+      document.getElementById("project_name").placeholder = default_project_name.name;
+      document.getElementById("project_name").value = "";
+      document.getElementById("ldsp_color").placeholder = default_project_name.ldsp_color;
+      document.getElementById("metal_color").value = "";
+      document.getElementById("discount").placeholder = default_project_name.discount;
+      document.getElementById("discount").value = "";
+      ajax_get_session(true,'del_name');
+    });
+
+
+    // ОБРАБОТКА КНОПКИ MODUL RESET "x" СБРОС БЛОКОВ С МОДУЛЯМИ
+    document.getElementById('modul_reset').addEventListener('click', async function(event) {
+      reset_block();
+      update_img(null,0);
+    });
+
+
+    // ОЧИСТКА ПОЛЕЙ МОНИТОРОВ
+    document.getElementById('monitor_reset').addEventListener('click', function(event) {
+      event.preventDefault(); // отмена стандартного поведения формы
+
+      var monitorTypes = ["monitor_type_1","monitor_type_2","monitor_type_3"]
+      for (var i=0; i < monitorTypes.length; i++){
+        document.getElementById(monitorTypes[i]).value = 0
+      }
+      ajax_get_session(true,'del_monitor');
+    });
+
+
+    // ОЧИСТКА ПОЛЕЙ РОЗЕТКИ + МОНИТОРЫ
+    document.getElementById('electric_ajax').addEventListener('click', function(event) {
+      event.preventDefault(); // отмена стандартного поведения формы
+      document.getElementById("electric_power").value = 0;
+      document.getElementById("electric_rj45").value = 0;
+      ajax_get_session(true,'del_electric');
+    });
+
 
     // HTML -> ОТОБРАЖЕНИЕ ВСПЛЫВАЮЩЕГО СООБЩЕНИЯ НА СТРАНИЦЕ (MESSAGE ALERT)
     function showBootstrapAlert(message,element_type, element_id) {
@@ -236,12 +290,35 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 
-    // TEST 2 -> НАЖАТИЕ КНОПКИ TEST2 ОБРАБОТКА
-    document.getElementById('test2').addEventListener('click', async function(event) {
-      showBootstrapAlert('TEST MESSAGE','hr','message_moduls');
+    // RESET_ALL -> НАЖАТИЕ КНОПКИ TEST ОБРАБОТКА
+    document.getElementById('reset_all').addEventListener('click', async function(event) {
+      event.preventDefault(); // Отменяем стандартное поведение формы html
+      //alert("press btn test");
+      var res = await ajax_get_session(true, 'all_reset');
+      console.log("Полученные модули: " + JSON.stringify(res));
+      window.location.reload();
     }); // ОБРАБОТКА КНОПКИ TEST
 
 
+
+
+    // НАЖАТИЕ НА КНОПКУ ДОБАВЛЕНИЕ НОВОГО БЛОКА МОДУЛЯ 
+    document.getElementById('add_block').addEventListener('click', async function(event) {
+      var res = await ajax_check_parametrs('is_add_block',blockCount); // отправить тип проверки и параметр
+      if(res.is_check){
+        await add_block(); // добавляем новый блок (скопированный с нулевого блока)
+        var moduls = await ajax_get_modulsd(); // получаем значения для заполнения модуль листа
+        select_modul_update(blockCount,moduls); // обновляем значения списков
+        set_value_block(blockCount,'выберите модуль','0',false); // устанавливаем значения по умолчанию
+        //update_img('reset',blockCount); // устанаваем картинку по умолчанию
+      }else{
+        console.log('ошибка проверка не пройдена');
+        showBootstrapAlert(res.msg,'hr','message_moduls');
+      }
+    });
+
+
+    // ОТПРАВКА ДАННЫХ НА СЕРВЕР (ПРОВЕРКА ПОЛЕЙ)
     document.getElementById('modul_send').addEventListener('click', async function(event) {
       event.preventDefault(); // Отменяем стандартное поведение формы html (перехватываем кнопку)
       // проверка формы выполняется здесь //
@@ -257,25 +334,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }); // ОБРАБОТКА КНОПКИ TEST
 
 
-    // TEST -> НАЖАТИЕ КНОПКИ TEST ОБРАБОТКА
-    document.getElementById('test').addEventListener('click', async function(event) {
-      event.preventDefault(); // Отменяем стандартное поведение формы html
-      //alert("press btn test");
-      var res = await ajax_get_session();
-      console.log("Полученные модули: " + JSON.stringify(res));
-    }); // ОБРАБОТКА КНОПКИ TEST
-
-
-    // ОБРАБОТКА КНОПКИ MODUL RESET "x" СБРОС БЛОКОВ С МОДУЛЯМИ
-    document.getElementById('modul_reset').addEventListener('click', async function(event) {
-      reset_block();
-      update_img(null,0);
-    });
-
-
     // СБРОС БЛОКОВ ВЫБОРА МОДУЛЕЙ
     async function reset_block(){
-      await ajax_get_session(true); // удаление сессии (ключ true Добавляет delete_key)
+      await ajax_get_session(true,'del_modul'); // удаление сессии (ключ true Добавляет delete_key)
       load_session(); // перезагрузить сессию
 
       for (let i=blockCount; i > 0; i--){
@@ -283,7 +344,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       set_value_block(0,SELECT_DEFAULT_VALUE,0,false);
     }
-
 
 
     // ДОБАВЛЕНИЕ НОВОГО БЛОКА (ПРОСТО КОПИРУЕТСЯ 0 БЛОК)
@@ -376,22 +436,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    // НАЖАТИЕ НА КНОПКУ ДОБАВЛЕНИЕ НОВОГО БЛОКА МОДУЛЯ 
-    document.getElementById('add_block').addEventListener('click', async function(event) {
-      var res = await ajax_check_parametrs('is_add_block',blockCount); // отправить тип проверки и параметр
-      if(res.is_check){
-        await add_block(); // добавляем новый блок (скопированный с нулевого блока)
-        var moduls = await ajax_get_modulsd(); // получаем значения для заполнения модуль листа
-        select_modul_update(blockCount,moduls); // обновляем значения списков
-        set_value_block(blockCount,'выберите модуль','0',false); // устанавливаем значения по умолчанию
-        //update_img('reset',blockCount); // устанаваем картинку по умолчанию
-      }else{
-        console.log('ошибка проверка не пройдена');
-        showBootstrapAlert(res.msg,'hr','message_moduls');
-      }
-    });
-
-
     function delete_block(){
       // Находим все блоки с классом 'block_0'
       const blocks = document.querySelectorAll('.block_0');
@@ -421,6 +465,5 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log('Нет блоков для удаления');
         }
     }); // УДАЛЕНИЕ ПОСЛЕДНЕГО БОКА МОДУЛЯ
-
 
   });
