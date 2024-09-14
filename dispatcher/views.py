@@ -20,6 +20,7 @@ default_project_name = {
 
 # INDEX -> ПЕРВЫЙ ВХОД НА СТРАНИЦУ, ИНИЦИАЛИЗАЦИЯ ПАРАМЕТРОВ СЕССИИ
 def index(request):
+    # request.session["project_name"] = default_project_name # обнуление сессии
     if "moduls" not in request.session:
         request.session['moduls'] = []
     if "options" not in request.session:
@@ -28,7 +29,7 @@ def index(request):
         request.session["project_name"] = default_project_name
 
 
-    moduls_list = manager_moduls.get_moduls_by_category(keys_in=('modul_left','modul_single'))
+    moduls_list = manager_moduls.get_moduls_by_category(keys_in=('modul_left','modul_22_left','modul_single'))
 
     context = {
         'title':'Диспетчерская',
@@ -103,10 +104,15 @@ def get_data(request):
 def show_result(request):
     res = Calculate(names=request.session["project_name"],moduls=request.session['moduls'],options=request.session['options'])
     # show_session_consol(request)
-    # print(res.output)
+    # print(res.output) "screen_list":[],"schine_list":[]
     context={
         "title":"результат расчёта",
+        "project": res.output["project"],
+        "moduls": res.output["moduls"],
+        "options": res.output["options"],
+        "all_price": res.output["all_price"],
         'project' : request.session["project_name"],
+        "all_lens" : res.output["all_lens"],
     }
     return render(request,'dispatcher/result.html',context)
 
@@ -130,7 +136,7 @@ def clear_session(request,del_key):
         # заменить на ключи (добавить шаблоны)
         request.session["project_name"] = default_project_name
     elif del_key == 'del_name':
-        request.session["project_name"] = {"name":"project","ldsp_color":"Арктика серый","metal_color":"RAL 7047", "discount":0}
+        request.session["project_name"] = default_project_name
     elif del_key == 'del_monitor':
         request.session['options'] = {
             "monitor_type_1":0,
@@ -186,7 +192,7 @@ def check_parametrs(request):
             permission = False
             msg = "нельзя добавлять модули к отдельно стоящему столу"
         
-        elif res['category']=='modul_right':
+        elif res['category'] in ('modul_right','modul_22_right'):
             permission = False
             msg = "правый модуль является закрывающим, если нужно продолжить выберите угловой или промежутнчный."
         return JsonResponse({'check_info':{'is_check':permission,'msg': msg}})
@@ -204,12 +210,28 @@ def check_parametrs(request):
                 permission = False
                 msg = "Добавлены мониторы, но нет шин монтажных"
                 return JsonResponse({'check_info':{'is_check':permission,'msg': msg}})
+            
+        if not any([int(request.POST[key])>0 for key in request.POST if "monitor_type_" in key]):
+            schine_list = [key for key in request.POST if "select_schine_" in key]
+            print(f"************{schine_list}")
+            if schine_list:
+                permission = False
+                msg = "Указаны шины монтажные но нет мониторов"
+                return JsonResponse({'check_info':{'is_check':permission,'msg': msg}})
+
         
         # ПРОВЕРКА, МОДУЛЕЙ
         if "выберите модуль" in [request.POST[key] for key in request.POST if 'modul_select_' in key]:
             permission = False
             msg = "Не выбран один из модулей."
             return JsonResponse({'check_info':{'is_check':permission,'msg': msg}})
+        
+        moduls = [request.POST[key] for key in request.POST if 'modul_select_' in key]
+        for i in range(len(moduls)-1):
+            if "правый" in moduls[i]:
+                permission = False
+                msg = "В центре не должно быть правых модулей. Правый модуль всегда в конце."
+                return JsonResponse({'check_info':{'is_check':permission,'msg': msg}})
             
         # ПРОВЕРКА ЧТО ПЕРВЫЙ МОДУЛЬ НЕ ЯВЛЯЕТСЯ ОТДЕЛЬНЫМ СТОЛОМ
         first_modul = request.POST[f"modul_select_0"]
@@ -237,7 +259,7 @@ def check_parametrs(request):
             permission = False
             msg = "есть не выбранные модули"
         
-        if res["category"]!='modul_right' and int(request.POST['is_send_form'])>0:
+        if res["category"] not in ['modul_right','modul_22_right'] and int(request.POST['is_send_form'])>0:
             permission = False
             msg = "закрывающий (последний) модуль должен быть правым"
         return JsonResponse({'check_info':{'is_check':permission,'msg': msg}})
@@ -266,5 +288,11 @@ def send_session(request):
 def get_moduls(request):
     """отправка всех модулей через ajax, для заполнения списков"""
     print("get_moduls")
-    moduls_list = manager_moduls.get_moduls_by_category(keys_in=('modul_right','modul_center','modul_angle_90'),is_contains=True)
+    moduls_list = manager_moduls.get_moduls_by_category(keys_in=(
+        'modul_right',
+        'modul_center',
+        'modul_angle_90',
+        'modul_22_right',
+        'modul_22_center'
+        ),is_contains=True)
     return JsonResponse({'moduls':moduls_list})

@@ -230,10 +230,19 @@ document.addEventListener('DOMContentLoaded', function() {
       //alert(JSON.stringify(default_project_name));
       document.getElementById("project_name").placeholder = default_project_name.name;
       document.getElementById("project_name").value = "";
+
       document.getElementById("ldsp_color").placeholder = default_project_name.ldsp_color;
+      document.getElementById("ldsp_color").value = "";
+
+      document.getElementById("metal_color").placeholder = default_project_name.metal_color;
       document.getElementById("metal_color").value = "";
+
+      document.getElementById("ldsp_price").placeholder = default_project_name.ldsp_price;
+      document.getElementById("ldsp_price").value = "";
+
       document.getElementById("discount").placeholder = default_project_name.discount;
       document.getElementById("discount").value = "";
+
       ajax_get_session(true,'del_name');
     });
 

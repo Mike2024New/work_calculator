@@ -2,8 +2,8 @@ from dispatcher.temporary import test_moduls # подключение базы �
 import re
 
 class Moduls:
-    """этот класс работает с комплектующими 
-    позже вынести в отдельный модуль
+    """
+    этот класс работает с комплектующими
     """
     def __init__(self,moduls) -> None:
         self.moduls = moduls
@@ -28,10 +28,16 @@ class Moduls:
         """
         получение компонента по категории и длине
         """
-        print(f"Ищем совпадение: category={category}|lens={lens}")
+        # print(f"Ищем совпадение: category={category}|lens={lens}")
         for row in test_moduls:
             if row["category"]==category and row["lens"]==lens:
                 return row["art"]
+            
+
+    def get_price_by_art(self,art):
+        for row in test_moduls:
+            if row["art"]==art:
+                return row["price"]
     
     def get_moduls_by_category(self,keys_in:tuple,is_contains=True)->list:
         """

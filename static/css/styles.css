@@ -46,15 +46,25 @@
   }
 
 
-  /*КНОПКИ НАВИГАЦИИ ШАПКИ САЙТА*/
-  .nav-link.active {
-    /*background-color: red; /* Красный фон для активной ссылки */
-    color: red; /* Цвет текста при активной ссылке */
-    height: 100%; /* Задаем высоту 100% */
-    display: flex; /* Используем flex для центрирования текста */
-    align-items: center; /* Центрируем текст по вертикали */
-    padding: 0rem; /* Задаем отступы */
-  }
+/* Кнопки навигации шапки сайта */
+.nav-link {
+  font-weight: bold;
+  color: white; /* Цвет текста для неактивной ссылки */
+  text-decoration: none; /* Убираем подчеркивание */
+}
+
+.nav-link.active {
+  height: 100%; /* Задаем высоту 100% */
+  display: flex; /* Используем flex для центрирования текста */
+  padding: 0rem; /* Задаем отступы */
+  align-items: center; /* Центрируем текст по вертикали */
+  color: red; /* Цвет текста при активной ссылке */
+}
+
+/* Эффект наведения */
+.nav-link:hover {
+  color: rgba(255, 255, 255, 0.75); /* Полупрозрачный белый фон при наведении */
+}
 
 
 
@@ -142,9 +152,20 @@
 
 
 
-  .cropped-image {
+.cropped-image {
     width: 150px; /* Ширина контейнера */
     height: 150px; /* Высота контейнера */
     object-fit: cover; /* Изображение будет обрезано, чтобы заполнить контейнер */
     object-position: center; /* Центрирование изображения */
+}
+
+
+/* обводка блоков страницы */
+.custom-shadow {
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.3);
+  margin-bottom: 20px;
+  
 }

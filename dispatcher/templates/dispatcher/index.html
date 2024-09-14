@@ -7,7 +7,8 @@
 <form method="POST" id="form_0" action="{% url "dispatcher:get_data" %}">
   {% csrf_token %}
 
-  <div class="shadow p-3 mb-4 mt-4 bg-white rounded">
+  {% comment %} <div class="shadow p-3 mb-4 mt-4 bg-white rounded"> {% endcomment %}
+  <div class="custom-shadow">
     <div class="card-body" id="card-body">
       <div class="d-flex justify-content-between">
         <h4>Информация о проекте:</h4>
@@ -20,21 +21,21 @@
       <input type="text" name="project_name" placeholder="{{ project.name|default:0 }}" id="project_name" class="form-control me-5" style="width: 535px;border: 0.01px solid gray;">
     </div>
     <div class="d-flex align-items-center mb-2">
-      <label for="project_name" class="me-2" style="width: 136px;" >Цвет ЛДСП:</label>
+      <label for="ldsp_color" class="me-2" style="width: 136px;" >Цвет ЛДСП:</label>
       <input type="text" name="ldsp_color" placeholder="{{ project.ldsp_color|default:0 }}" id="ldsp_color" class="form-control me-2" style="width: 200px;border: 0.01px solid gray;">
-      <label for="project_name" class="me-2" style="width: 120px;">Цвет металла:</label>
+      <label for="metal_color" class="me-2" style="width: 120px;">Цвет металла:</label>
       <input type="text" name="metal_color" placeholder="{{ project.metal_color|default:0 }}" id="metal_color" class="form-control me-5" style="width: 200px;border: 0.01px solid gray;">
     </div>
     <div class="d-flex align-items-center mb-2">
-      <label for="project_name" class="me-2" style="width: 136px;" >ДСП р. за 1 м.кв:</label>
+      <label for="ldsp_price" class="me-2" style="width: 136px;" >ДСП р. за 1 м.кв:</label>
       <input type="text" name="ldsp_price" placeholder="{{ project.ldsp_price|default:0 }}" id="ldsp_price" class="form-control me-2" style="width: 200px;border: 0.01px solid gray;">
-      <label for="project_name" class="me-2" style="width: 120px;" >Скидка %:</label>
+      <label for="discount" class="me-2" style="width: 120px;" >Скидка %:</label>
       <input type="text" name="discount" placeholder="{{ project.discount|default:0 }}" id="discount" class="form-control me-2" style="width: 200px;border: 0.01px solid gray;">
     </div>
   </div>
 
   <!--КОНФИГУРАТОР МОДУЛЕЙ-->
-  <div class="shadow p-3 mb-4 mt-4 bg-white rounded">
+  <div class="custom-shadow">
 
     <!--ЗАГОЛОК КОНФИГУРАТОРА МОДУЛЕЙ-->
     <div class="card-body" id="card-body">
@@ -120,7 +121,7 @@
 
 
     <!-- БЛОК С МОНИТОРАМИ -->
-    <div class="shadow p-3 mb-4 mt-4 bg-white rounded"  style="border: 0.01px solid gray;"> 
+    <div class="custom-shadow"> 
       <div class="d-flex justify-content-between">
         <h4>Мониторы:</h4>
         <button class="btn btn-danger ms-2" id="monitor_reset" name="monitor_reset">x</button>
@@ -150,7 +151,7 @@
 
 
     <!-- РОЗЕТКИ И RJ 45 -->
-  <div class="shadow p-3 mb-4 mt-4 bg-white rounded"  style="border: 0.01px solid gray;"> 
+  <div class="custom-shadow"> 
     <div class="d-flex justify-content-between">
       <h4>  Электрика:</h4>
       <button class="btn btn-danger ms-2" type="submit" id="electric_ajax" name="electric_ajax">x</button>
@@ -173,7 +174,7 @@
   </div>
 
   <!--КНОПКИ ОТПРАВКИ ФОРМЫ (POST)-->
-  <div class="shadow p-3 mb-5 mt-4 bg-white rounded" style="border: 0.01px solid gray;"> 
+  <div class="custom-shadow"> 
     <div class="d-flex justify-content-between">
       <button type="submit" class="btn btn-dark" id="modul_send" name="modul_send">Расчёт станции</button>
       <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#confirmModal">

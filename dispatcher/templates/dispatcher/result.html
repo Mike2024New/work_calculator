@@ -1,11 +1,109 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}{{ title }}{% endblock title %}
 {% block content %}
-<div class="shadow p-3 mb-4 mt-4 bg-white rounded"> 
-  <h1>Результат</h1>
-  <p>В разработке...</p>
-  <p>{{ project.name }}</p>
-  <a href="{% url "dispatcher:index" %}"><button type="button" class="btn btn-danger ms-2" type="button" name="modul_reset">Назад</button></a>
+<div class="custom-shadow"> 
+  <!--СТИЛИ ПОТОМ ВЫНЕСТИ В ОТДЕЛЬНЫЙ ФАЙЛ-->
+  <style>
+    /*СТИЛЬ ПОЗИЦИОННЫХ СТРОК (В РАСЧЁТАХ)*/
+    .positions{
+      margin: 20px;
+      font-weight: light;
+      margin-top: 0; /* Убираем верхний отступ */
+      margin-bottom: 0; /* Убираем нижний отступ */
+    }
+
+    .positions_options{
+      margin: 20px;
+      font-weight: bold;
+      margin-top: 0; /* Убираем верхний отступ */
+      margin-bottom: 0; /* Убираем нижний отступ */
+    }
+
+    /*СТИЛЬ ЦЕН  (В РАСЧЁТАХ)*/
+    .price{
+      color:red;
+      /*text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5); /* Тень для текста */  не подходит сюда но понравилось для других проектов*/
+    }
+
+    .positions_header{
+      font-size: 1.2em;
+      margin: 20px;
+      font-weight: bold;
+      margin-top: 0; /* Убираем верхний отступ */
+      margin-bottom: 1; /* Убираем нижний отступ */
+    }
+  </style>
+
+  <!--ВЫВОД МОДУЛЬНЫХ КОМПЛЕКТУЮЩИХ-->
+  <div class="d-flex justify-content-between">
+    <h1 style="font-size: 1.8em;">Расчёт по проекту: <span class="price">{{ project.name }}</span></h1>
+    <a href="{% url "dispatcher:index" %}"><button type="button" class="btn btn-danger ms-2">x</button></a>
+  </div>
+  <hr>
+    <h4>{{ all_lens }}</h4>
+    <div class="container">
+      <div class="row">
+        {% for mod in moduls %}
+          <div class="col">
+            <figure style="text-align: center;color:red;font-weight: 600;font-size: 1.1rem;">
+              <img src="{{ mod.img }}" alt="нет изображения" class="cropped-image">
+              <figcaption style="price; font-size:12px;margin:0;">Стол: {{ mod.lens }}{% if mod.screen.add_value %}<br>Экран: {{ mod.screen.add_value }}{% endif %}
+                {% if mod.schine.add_value %}<br>Шина: {{ mod.schine.add_value }}{% endif %}</figcaption>
+            </figure>            
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  <hr>
+  <!--ВЫВОД ОПЦИОНАЛЬНЫХ КОМПЛЕКТУЮЩИХ-->
+  {% for mod in moduls %}
+    <span class="badge text-bg-danger rounded-pill" style="font-size: 1.2rem;">{{ forloop.counter }}</span><br><br>
+    <p class="positions_header">{{ mod.header }}</p>
+    <ul>
+      
+      <!--стол-->
+      <li class="positions">{{ mod.modul.part1 }} <span class="price">{{ mod.modul.part2 }}</span>
+        {{ mod.modul.part3 }}{{ mod.modul.part4 }} <span class="price">{{ mod.modul.part5 }}</span> {{ mod.modul.part6 }}</li>
+
+      <!--экраны-->
+      {% if mod.screen.part1 %}
+        <li class="positions">{{ mod.screen.part1 }} <span class="price">{{ mod.screen.part2 }}</span>
+          {{ mod.screen.part3 }}{{ mod.screen.part4 }} <span class="price">{{ mod.screen.part5 }}</span> {{ mod.screen.part6 }}</li>
+      {% endif %}
+
+      <!--шины-->
+      {% if mod.schine.part1 %}
+        <li class="positions">{{ mod.schine.part1 }} <span class="price">{{ mod.schine.part2 }}</span>
+          {{ mod.schine.part3 }}{{ mod.schine.part4 }} <span class="price">{{ mod.schine.part5 }}</span> {{ mod.schine.part6 }}</li>
+      {% endif %}
+      
+        <!--столешницы-->
+      <li class="positions">{{ mod.table.part1 }} <span class="price">{{ mod.table.part2 }}</span>
+        {{ mod.table.part3 }}{{ mod.table.part4 }} <span class="price">{{ mod.table.part5 }}</span> {{ mod.table.part6 }}</li>
+    </ul>
+      <p class="positions_options">Итого модуль: <span class="price">{{ mod.price }}</span> руб./шт.</p>
+  <hr>
+  {% endfor %}
+
+  {% for opt in options %}
+    <!--вставка строки с опциональными комплектующими-->
+    <p class="positions_options">{{ opt.part1 }} <span class="price">{{ opt.part2 }}
+    </span> {{ opt.part3 }}{{ opt.part4 }} <span class="price">{{ opt.part5 }}</span> {{ opt.part6 }}</p>
+  {% endfor %}
+  <!--КОНЕЦ ВЫВОДА ОПЦИОНАЛЬНЫХ КОМПЛЕКТУЮЩИХ-->
+  <hr>
+
+  <h4 style="margin:20px;">Итоговая себестоимость: <span class="price">{{ all_price }}</span> руб.</h4>
+  
+</div>
+
+<!--КНОПКИ ОТПРАВКИ ФОРМЫ (POST)-->
+<div class="custom-shadow"> 
+  <div class="d-flex justify-content-between">
+    <a href="{% url "dispatcher:index" %}"><button type="button" class="btn btn-danger ms-2" type="button" name="modul_reset">изменить параметры</button></a>
+    <a href="#"><button type="button" class="btn btn-dark ms-2" type="button" name="get_word">Получить word</button></a>
+  </div>
 </div>
 {% endblock content %}
