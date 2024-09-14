@@ -49,5 +49,9 @@ class Moduls:
             return [row for row in test_moduls if row['category'] in keys_in]
         return [row for row in test_moduls if row['category'] not in keys_in]
     
+
+    def get_all_moduls(self):
+        return [row for row in test_moduls]
+    
 if __name__=="__main__":
     print(123)

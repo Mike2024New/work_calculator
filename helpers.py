@@ -18,3 +18,55 @@ def count_elements(input_collect: list | tuple | set) -> list:
         else:
             element_count[element] = 1  # если нет, то записать элемент в словарь с начальным 1
     return [(element, count) for element, count in element_count.items()]  # вернуть список с кортежами
+
+
+def debug_output_console_mark_function_and_args(fillchar: str = '=', width: int = 80, **kwargs) -> callable:
+    """
+    функция для отладки, выводит метки старта и завершения в консоль
+    :type kwargs: object -> принимает на вход отслеживаемые аргументы
+    :param fillchar: символ заливки
+    :param width: -> Длина заливки символов в консоли
+    :return:
+    пример, есть функция:
+    def test():
+        print(123)
+
+    Вывод которой в консоль выглядит так: 123
+    Подключили декоратор:
+
+    @output_console_mark_function(fillchar="*",x=1,y=2)
+    def test():
+        print(123)
+
+    Теперь вывод выглядит так:
+    ************************* test *************************
+    аргументы на входе:
+    x:1
+    y:2
+    -------------
+    Тело функции:
+    123
+    ************************* end test *********************
+    """
+
+    def decorator(func: callable) -> callable:
+        def inner() -> None:
+            try:
+                func_name_start = func.__name__.upper()
+                func_name_end = f" end {func_name_start} "
+                count_char_start = int((width - len(func_name_start)) / 2)
+                count_char_end = int((width - len(func_name_end)) / 2)
+                print(f"{fillchar * count_char_start}{func_name_start}{fillchar * count_char_start}")
+                if kwargs:
+                    print("аргументы на входе:")
+                    [print(f"{key}:{kwargs[key]}") for key in kwargs]
+                    print(f"{'-' * 19}\nТело функции:")
+                func()  # ВЫПОЛНЕНИЕ ПЕРЕДАННОЙ ФУНКЦИИ
+                print(f"{fillchar * count_char_end}{func_name_end}{fillchar * count_char_end}")
+            except Exception as err:
+                print(f"Произошла ошибка debug_output_console_mark_function_and_args -> {err}")
+                func()  # ВЫПОЛНЕНИЕ ПЕРЕДАННОЙ ФУНКЦИИ
+
+        return inner
+
+    return decorator

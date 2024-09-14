@@ -19,6 +19,7 @@
   {% url 'dispatcher:index' as dispatcher_index_url %} <!-- URL на главную страницу приложения Расчёта диспетчерской мебели -->
   {% url "dispatcher:show_result" as disp_res %}
   {% url 'price_list:index' as price_index_url %}  <!-- URL настройки прайс-листов -->
+  {% url 'price_list:load_price' as load_price_url %}  <!-- URL настройки прайс-листов -->
 
   <!--ШАПКА (МЕНЮ)-->
   <header class="p-3 mb-5 text-bg-dark">
@@ -28,8 +29,9 @@
         <!--НАВИГАЦИЯ ПО СТРАНИЦАМ (МЕНЮ)-->
           <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
               <li><a href="{{ main_index_url }}" class="nav-link px-2 d-block h-100 {% if request.path == main_index_url %}active{% endif %}">Главная</a></li>
-              <li><a href="{{ dispatcher_index_url }}" class="nav-link px-2 d-block h-100 {% if request.path == dispatcher_index_url or request.path == disp_res %}active{% endif %}">Диспетчерская</a></li>
-              <li><a href="{{ price_index_url }}" class="nav-link px-2 d-block h-100 {% if request.path == price_index_url %}active{% endif %}">Прайс</a></li>
+              <li><a href="{{ dispatcher_index_url }}" class="nav-link px-2 d-block h-100 {% if request.path == dispatcher_index_url or request.path == disp_res %}active{% endif %}">Калькулятор</a></li>
+              <li><a href="{{ price_index_url }}" class="nav-link px-2 d-block h-100 {% if request.path == price_index_url or request.path == load_price_url %}active{% endif %}">Прайс</a></li>
+              <li><a href="{% url "admin:index" %}" class="nav-link px-2 d-block h-100">Админка</a></li>
           </ul>
 
           <!--ПОЛЕ ПОИСКА НА ШАПКЕ-->

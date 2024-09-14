@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }}{% endblock title %}
+{% block content %}
+<div class="custom-shadow">
+  <div class="d-flex justify-content-between">
+    <h4>Диспетчерская мебель:</h4>
+    <a href="{% url "price_list:index" %}"><button type="button" class="btn btn-danger ms-2">x</button></a>
+  </div>
+  <hr>
+  <form method='post'>
+    {% csrf_token %}
+    <select name="category" id="category" class="form-select mb-2">
+      <option>выберите категорию</option>
+      {% for cat in categories %}
+        <option>{{ cat.1 }}</option>
+      {% endfor %}
+    </select>
+    <hr>
+      <label for="load_components" style="font-weight:bold;">введите добавляемые позиции:</label>
+      <textarea id="load_components" name="load_components" rows="5" class="form-control" cols="50" placeholder="Введите ваш текст здесь..."></textarea>
+      <br>
+      <button type="submit" class="btn btn-danger">Загрузить</button>
+      <button type="button" class="btn btn-dark">Отменить</button>
+  </form>
+</div>
+
+
+{% endblock content %}

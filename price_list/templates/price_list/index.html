@@ -2,8 +2,14 @@
 
 {% block title %}{{ title }}{% endblock title %}
 {% block content %}
-<div class="custom-shadow"> 
-  <h1>Прайс-лист настройки</h1>
-  <p>В разработке...</p>
+<div class="custom-shadow">
+  <div class="d-flex justify-content-between">
+    <h4>Диспетчерская мебель</h4>
+    <a href="{% url "price_list:index" %}"><button type="button" class="btn btn-danger ms-2">x</button></a>
+  </div>
+  <hr>
+  <a href="{% url "price_list:load_price" %}"><button type="button" class="btn btn-danger">Изменить прайс</button></a>
 </div>
+
+
 {% endblock content %}
